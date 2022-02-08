@@ -1,14 +1,9 @@
 #!/bin/bash
 
-# Based on https://github.com/rracariu/docker
-
 set -euo pipefail
 
-# start mongo
-/app-entrypoint.sh /run.sh &
-# and wait until its online
-while ! nc -z localhost 27017; do
- sleep 0.1
+while ! nc -z mongodb 27017; do
+  sleep 0.1
 done
 
 echo Starting dub registry

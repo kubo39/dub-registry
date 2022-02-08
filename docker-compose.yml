@@ -1,0 +1,30 @@
+version: "3.4"
+
+x-backend: &backend
+  build:
+    context: .
+    dockerfile: Dockerfile
+  environment:
+    MONGODB_URI: mongodb://mongodb:password@mongodb:27017/vpmreg
+  links:
+    - mongodb
+
+services:
+  mongodb:
+    image: bitnami/mongodb:3.6-debian-8
+    ports:
+      - 127.0.0.1:27017:27017
+    volumes:
+      - ./bitnami:/bitnami
+  backend:
+    <<: *backend
+    ports:
+      - 9095:9095
+    depends_on:
+      - mongodb
+    volumes:
+      - ./dub:/dub
+
+volumes:
+  mongo:
+  dub:

@@ -6,3 +6,6 @@
 *.exe
 log.txt
 settings.json
+bitnami/
+dub/
+mirror.json
