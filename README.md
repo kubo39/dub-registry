@@ -80,30 +80,56 @@ And you should notice that it now contains all packages which are listed on code
 
 Note that `--mirror=mirror.json` and `--mirror=https://code.dlang.org` are very similar and the `mirror.json` is only preferred for local development because it allows to easily nuke the entire mongo database and re-initialize it without needing any connection to the internet.
 
-Deploy your private dub-registry with Docker
+Running docker-compose
 --------------------------------------------
 
-The [dlangcommunity/dub-registry](https://hub.docker.com/r/dlangcommunity/dub-registry/) Docker image is available for an easy setup:
+Before running docker-compose up, you need to create vpmreg database and an admin user.
 
-```
-export DUB_REGISTRY_HOME="$PWD"
-docker run --rm -ti -p 9095:9095 -v $DUB_REGISTRY_HOME:/bitnami -v $DUB_REGISTRY_HOME:/dub dlangcommunity/dub-registry
-```
-
-This will run both `mongodb` and `dub-registry` while persisting the database in the `$DUB_REGISTRY_HOME` location. The registry is accessible at http://127.0.0.1:9095
-
-To run it as a daemon and make it auto-restart use:
-
-```
-docker run -d --restart=always -ti -p 9095:9095 -v $DUB_REGISTRY_HOME:/bitnami -v $DUB_REGISTRY_HOME:/dub dlangcommunity/dub-registry
+```console
+$ docker run --rm -ti -v $PWD/bitnami:/bitnami bitnami/mongodb:3.6-debian-8
 ```
 
-The registry can be configured by adding the `settings.json` file in `$DUB_REGISTRY_HOME` folder.
+```
+> use admin
+switched to db admin
+> > db.createUser({ user: "mongodb", pwd: "password", roles: [{ role: "userAdminAnyDatabase", db: "admin" }]})
+Successfully added user: {
+        "user" : "mongodb",
+        "roles" : [
+                {
+                        "role" : "userAdminAnyDatabase",
+                        "db" : "admin"
+                }
+        ]
+}
+> use vpmreg
+switched to db vpmreg
+> db.createUser({ user: "mongodb", pwd: "password", roles: [{ role: "dbOwner", db: "vpmreg" }] })
+Successfully added user: {
+        "user" : "mongodb",
+        "roles" : [
+                {
+                        "role" : "dbOwner",
+                        "db" : "vpmreg"
+                }
+        ]
+}
+> db.auth("mongodb", "password")
+1
+```
 
-Staging server
---------------
+Modify `username:password` in docker-compose.yml.
 
-An auto-deployed version of `master` can be found at https://dub-registry-staging.herokuapp.com.
+```yml
+  environment:
+    MONGODB_URI: mongodb://mongodb:password@mongodb:27017/vpmreg
+```
+
+Run `docker-compose up`.
+
+```console
+$ docker-compose up
+```
 
 FAQ: I'm getting an "undefined reference to 'SSLv23_client_method'"
 -------------------------------------------------------------------
