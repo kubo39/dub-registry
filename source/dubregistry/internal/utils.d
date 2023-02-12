@@ -114,7 +114,7 @@ private LogoGenerateResponse generateLogoUnsafe(NativePath file) @safe nothrow
 		if (width < 2 || height < 2 || width > 2048 || height > 2048)
 			return LogoGenerateResponse(null, "Invalid image dimenstions, must be between 2x2 and 2048x2048.");
 
-		auto png = pipeProcess(["timeout", "3", "convert", firstFrame, "-resize", "512x512>", "png:-"]);
+		auto png = pipeProcess(["timeout", "3", "convert", firstFrame, "-thumbnail", "512x512>", "png:-"]);
 
 		auto a = appender!(immutable(ubyte)[])();
 
